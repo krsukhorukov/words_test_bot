@@ -1,38 +1,28 @@
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from config import *
-from vocabulary import *
-import random
-import pandas as pd
+from imports import *
+from quiz import choose_voc, choose_mode, initialization
 
-# Замените 'YOUR_BOT_TOKEN' на реальный токен вашего бота
 TOKEN = token
 my_vocabulary = vocabulary
-# Создаем словарь для хранения переменных для каждого пользователя
-user_data = {}
+
 results = {}
 my_context = {}
 
 def start(update: Update, context: CallbackContext) -> None:
     user_id = update.message.from_user.id
-    user_sum = {}
-
+    # user_sum = {}
 
     for word, translations in user_data[user_id]['words_for_time'].items():
-        if 'quiz_in_progress' in context.user_data:
-            if context.user_data['quiz_in_progress'] == False:
-                context.user_data['quiz_in_progress'] = True
-                update.message.reply_text(f"Bonjour! Quiz est lancé. Entrez les traductions des mots. Si vous voulez terminer, envoyez ❌\n\nEt ainsi, le premier mot: {word.lower()}")
-            else:
-                update.message.reply_text(word)
-
-        else:
+        if context.user_data['quiz_in_progress'] == False:
             context.user_data['quiz_in_progress'] = True
-            update.message.reply_text(f"Bonjour! Quiz est lancé. Entrez les traductions des mots. Si vous voulez terminer, envoyez ❌\n\nEt ainsi, le premier mot: {word.lower()}")
+            update.message.reply_text(f"""
+                Quiz est lancé. Entrez les traductions des mots. Si vous voulez terminer, envoyez /stop \n\nEt ainsi, le premier mot: {word.lower()}
+            """)
+        else:
+            update.message.reply_text(word)
 
 
         correct_translations = [translation.strip().lower() for translation in translations.split(',')]
-        print(word, ', ',translations)
+        print(word, ':',translations)
 
         if user_id not in user_data:
             user_data[user_id] = {}
@@ -47,12 +37,14 @@ def start(update: Update, context: CallbackContext) -> None:
         break
 
 def handle_text_input(update: Update, context: CallbackContext) -> None:
-    # Проверяем, ожидает ли пользователь ввод текста        
     user_id = update.message.from_user.id
     user_input = update.message.text
 
-    if context.user_data.get('quiz_in_progress'):
-        if context.user_data['quiz_in_progress'] == True:
+    try:
+        if context.user_data['mode_in_progress'] == True:
+            choose_mode(update, context, 1)
+
+        elif context.user_data['quiz_in_progress'] == True:
             print(user_input)
             if user_input == '❌':
                 contin(update, context)
@@ -66,11 +58,9 @@ def handle_text_input(update: Update, context: CallbackContext) -> None:
                 else:
                     contin(update, context)
 
-    elif context.user_data.get('choose_in_progress', False):
-        if context.user_data['choose_in_progress'] == True:
-
+        elif context.user_data['choose_in_progress'] == True:
+            user_input = user_input.strip().lower()
             context.user_data['choose_in_progress'] = False
-            print(my_vocabulary[f"{user_input}"])
             random.seed()  # Инициализация генератора случайных чисел
             shuffled_keys = list(my_vocabulary[f"{user_input}"].keys())
             random.shuffle(shuffled_keys)
@@ -82,20 +72,31 @@ def handle_text_input(update: Update, context: CallbackContext) -> None:
                 user_data[user_id]['words_for_time'] = {}
             user_data[user_id]['words_for_time'] = words_for_time
             start(update, context)
-    else:
-        update.message.reply_text("Entrée inattendue. Tapez /start pour commencer.")
+
+        # elif context.user_data['mode_in_progress'] == True:
+        #     choose_mode(update, context, 1)
+
+        else:
+            update.message.reply_text("Entrée inattendue. Tapez /start pour commencer.")
+            
+    except Exception as e:
+        update.message.reply_text("Фатальная ошибка. Попробуйте запустить еще раз /start")
+        initialization(update, context)
+
+        print(f"Ошибка: {e}")
 
 def contin(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
-    reponse = ""
+    reponse = "<b>Vos résultats:</b>\n\n"
+    ansver_count = 0
     if 'correct_count' not in context.user_data:
         context.user_data['correct_count'] = 0
     correct_count = context.user_data['correct_count']
 
     for word, translation in user_data[user_id]['words'].items():
-        print(translation)
         my_translation = ""
         if len(translation) > 1:
+            ansver_count += 1
             if translation[1] in translation[0]:
                 correct_count += 1
                 for i in translation[0]:
@@ -105,29 +106,24 @@ def contin(update: Update, context: CallbackContext):
                 for i in translation[0]:
                     my_translation += f"{i}, "
                 reponse += f"❌ {word} — {translation[1]} (correct: {my_translation.rstrip(', ')})\n"
+    pourcentage = (correct_count * 100) / ansver_count
+    rounded_pourcentage = round(pourcentage)
+    reponse += f"\n<i>Statistique:</i>\n{correct_count} sur {ansver_count}; {rounded_pourcentage}%"
 
-    update.message.reply_text(f"Vos résultats:\n{reponse}")
+    update.message.reply_text(reponse, parse_mode='HTML')
 
     del user_data[user_id]
     context.user_data['quiz_in_progress'] = False
 
     print(correct_count)
 
-def choose_voc(update: Update, context: CallbackContext):
-    user_id = update.message.from_user.id
-    print("go")
-    context.user_data['choose_in_progress'] = True
-    reponse = "sélectionnez un dictionnaire parmi ceux énumérés ci-dessous et entrez son nom:\n"
-    for i in my_vocabulary.keys():
-        reponse += f"{i}\n"
-    update.message.reply_text(reponse)
-
 def main() -> None:
     updater = Updater(TOKEN)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", choose_voc))
-    dp.add_handler(CommandHandler("choose", choose_voc))
+    dp.add_handler(CommandHandler("stop", contin))
+    dp.add_handler(CommandHandler("choose_mode", choose_mode))
 
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_text_input))
 
