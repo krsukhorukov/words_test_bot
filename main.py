@@ -1,5 +1,6 @@
 from imports import *
-from quiz import choose_voc, choose_mode, initialization
+from quiz import choose_voc, choose_mode, initialization, done_voc
+from administration import  add_admin, del_admin
 
 TOKEN = token
 my_vocabulary = vocabulary
@@ -46,44 +47,27 @@ def handle_text_input(update: Update, context: CallbackContext) -> None:
 
         elif context.user_data['quiz_in_progress'] == True:
             print(user_input)
-            if user_input == '❌':
-                contin(update, context)
-                context.user_data['quiz_in_progress'] = False
-            else:
-                word = context.user_data.get('testing_word')
-                user_data[user_id]['words'][word].append(user_input.strip().lower())  # Сохраняем введенный текст
+            word = context.user_data.get('testing_word')
+            user_data[user_id]['words'][word].append(user_input.strip().lower())  # Сохраняем введенный текст
 
-                if len(user_data[user_id]['words_for_time']) > 0:
-                    start(update, context)
-                else:
-                    contin(update, context)
+            if len(user_data[user_id]['words_for_time']) > 0:
+                start(update, context)
+            else:
+                contin(update, context)
 
         elif context.user_data['choose_in_progress'] == True:
-            user_input = user_input.strip().lower()
-            context.user_data['choose_in_progress'] = False
-            random.seed()  # Инициализация генератора случайных чисел
-            shuffled_keys = list(my_vocabulary[f"{user_input}"].keys())
-            random.shuffle(shuffled_keys)
-            words_for_time = {key: my_vocabulary[f"{user_input}"][key] for key in shuffled_keys}
-
-            if user_id not in user_data:
-                user_data[user_id] = {}
-            if 'words_for_time' not in user_data[user_id]:
-                user_data[user_id]['words_for_time'] = {}
-            user_data[user_id]['words_for_time'] = words_for_time
-            start(update, context)
-
-        # elif context.user_data['mode_in_progress'] == True:
-        #     choose_mode(update, context, 1)
-
+            done_voc(update, context)
+        elif context.user_data['add_admin'] == True:
+            add_admin(update, context)
+        elif context.user_data['del_admin'] == True:
+            del_admin(update, context)
         else:
             update.message.reply_text("Entrée inattendue. Tapez /start pour commencer.")
             
     except Exception as e:
-        update.message.reply_text("Фатальная ошибка. Попробуйте запустить еще раз /start")
+        update.message.reply_text("⚠️ <b>Фатальная ошибка.</b>\nПопробуйте запустить еще раз /start", parse_mode='HTML')
         initialization(update, context)
-
-        print(f"Ошибка: {e}")
+        print(f"Вызов инициализации для обнуления данных пользователя.\nОшибка: {e}")
 
 def contin(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
@@ -106,11 +90,14 @@ def contin(update: Update, context: CallbackContext):
                 for i in translation[0]:
                     my_translation += f"{i}, "
                 reponse += f"❌ {word} — {translation[1]} (correct: {my_translation.rstrip(', ')})\n"
-    pourcentage = (correct_count * 100) / ansver_count
-    rounded_pourcentage = round(pourcentage)
-    reponse += f"\n<i>Statistique:</i>\n{correct_count} sur {ansver_count}; {rounded_pourcentage}%"
+    if ansver_count < 1:
+        update.message.reply_text("Результаты отсутствуют.")
+    else:
+        pourcentage = (correct_count * 100) / ansver_count
+        rounded_pourcentage = round(pourcentage)
+        reponse += f"\n<i>Statistique:</i>\n{correct_count} sur {ansver_count}; {rounded_pourcentage}%"
 
-    update.message.reply_text(reponse, parse_mode='HTML')
+        update.message.reply_text(reponse, parse_mode='HTML')
 
     del user_data[user_id]
     context.user_data['quiz_in_progress'] = False
@@ -124,6 +111,9 @@ def main() -> None:
     dp.add_handler(CommandHandler("start", choose_voc))
     dp.add_handler(CommandHandler("stop", contin))
     dp.add_handler(CommandHandler("choose_mode", choose_mode))
+    dp.add_handler(CommandHandler("add_admin", add_admin))
+    dp.add_handler(CommandHandler("del_admin", del_admin))
+
 
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_text_input))
 

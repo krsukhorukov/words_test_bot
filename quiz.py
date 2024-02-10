@@ -4,32 +4,84 @@ from imports import *
 my_vocabulary = vocabulary
 
 def initialization(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
     context.user_data['mode_in_progress'] = False
     context.user_data['quiz_in_progress'] = False
     context.user_data['choose_in_progress'] = False
+    context.user_data['add_admin'] = False
+    context.user_data['del_admin'] = False
     context.user_data['initializated'] = True
     context.user_data['mode'] = "fr_to_ru"
-    print("Initializated")
+
+
+    if user_id not in user_data:
+        user_data[user_id] = {}
+    if 'words' not in user_data[user_id]:
+        user_data[user_id]['words'] = {}
+    print("Инициализировано")
 
     return
-
-def invers_start(update: Update, context: CallbackContext, user_data):
-    user_id = update.message.from_user.id
 
 def choose_voc(update: Update, context: CallbackContext):
-    if context.user_data.get('initializated', False):
-        print("Инициализация не необходима")
-    else:
-        print("Инициализация")
-        initialization(update, context)
+    user_id = update.message.from_user.id
+    username = update.message.from_user.username
+    if only_admins == True:
+        print("Режим только для админов")
+        try:
+            if username in propriétaires or username in admins:
 
-    context.user_data['choose_in_progress'] = True
-    reponse = "Bonjour! Sélectionnez un dictionnaire parmi ceux énumérés ci-dessous et entrez son nom:\n"
-    for i in my_vocabulary.keys():
-        reponse += f"{i}\n"
-    update.message.reply_text(reponse)
+                if context.user_data.get('initializated', False):
+                    print("Инициализация не необходима")
+                else:
+                    print("Вызов нициализации")
+                    initialization(update, context)
+
+                context.user_data['choose_in_progress'] = True
+                reponse = "Bonjour! Sélectionnez un dictionnaire parmi ceux énumérés ci-dessous et entrez son nom:\n"
+                for i in my_vocabulary.keys():
+                    reponse += f"{i}\n"
+                update.message.reply_text(reponse)
+            else:
+                update.message.reply_text("ℹ️ <b>Проводятся технические работы.</b>\nБот временно не доступен", parse_mode='HTML')
+
+        except:
+            update.message.reply_text("ℹ️ <b>Проводятся технические работы.</b>\nБот временно не доступен", parse_mode='HTML')
+    
+    else:
+        if context.user_data.get('initializated', False):
+            print("Инициализация не необходима")
+        else:
+            print("Вызов нициализации")
+            initialization(update, context)
+
+        context.user_data['choose_in_progress'] = True
+        reponse = "Bonjour! Sélectionnez un dictionnaire parmi ceux énumérés ci-dessous et entrez son nom:\n"
+        for i in my_vocabulary.keys():
+            reponse += f"{i}\n"
+        update.message.reply_text(reponse)
 
     return
+
+def done_voc(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    user_input = update.message.text
+    user_input = user_input.strip().lower()
+    context.user_data['choose_in_progress'] = False
+    if user_input in my_vocabulary:        
+        random.seed()  # Инициализация генератора случайных чисел
+        shuffled_keys = list(my_vocabulary[f"{user_input}"].keys())
+        random.shuffle(shuffled_keys)
+        words_for_time = {key: my_vocabulary[f"{user_input}"][key] for key in shuffled_keys}
+
+        if context.user_data['mode'] == "ru_to_fr":
+            words_for_time = {value: key for key, value in words_for_time.items()}
+
+        user_data[user_id]['words_for_time'] = {}
+        user_data[user_id]['words_for_time'] = words_for_time
+        start(update, context)
+    else:
+        update.message.reply_text("Dictionnaire non valide. Tapez /start encore une fois.")
+
 
 def choose_mode(update: Update, context: CallbackContext, progress=0):
     if progress == 0:
@@ -39,58 +91,39 @@ def choose_mode(update: Update, context: CallbackContext, progress=0):
         user_input = update.message.text
         if user_input == '1':
             context.user_data['mode'] = "fr_to_ru"
-            update.message.reply_text("Вы выбрали Français ➡️ Russe")
+            update.message.reply_text("Votre mode Français ➡️ Russe")
         elif user_input == '2':
             context.user_data['mode'] = "ru_to_fr"
-            update.message.reply_text("Вы выбрали Russe ➡️ Français")
+            update.message.reply_text("Votre mode Russe ➡️ Français")
         else:
-            update.message.reply_text("Ошибка ввода. Введите команду /choose_mode еще раз.")
+            update.message.reply_text("Requête invalide. Tapez /choose_mode encore une fois.")
         context.user_data['mode_in_progress'] = False
 
 
 
-# def choose_voc(update: Update, context: CallbackContext, user_input, user_data):
-#     context.user_data['choose_in_progress'] = False
-#     print(my_vocabulary[f"{user_input}"])
-#     random.seed()  # Инициализация генератора случайных чисел
-#     shuffled_keys = list(my_vocabulary[f"{user_input}"].keys())
-#     random.shuffle(shuffled_keys)
-#     words_for_time = {key: my_vocabulary[f"{user_input}"][key] for key in shuffled_keys}
+def start(update: Update, context: CallbackContext) -> None:
+    user_id = update.message.from_user.id
 
-#     user_data['words_for_time'] = words_for_time
-#     start(update, context)
-
-#     return user_data
-
-def start(update: Update, context: CallbackContext, user_data) -> None:
-    for word, translations in user_data['words_for_time'].items():
-        try:
-            if context.user_data['quiz_in_progress'] == False:
-                context.user_data['quiz_in_progress'] = True
-                update.message.reply_text(f"""
-                                            Quiz est lancé. Entrez les traductions des mots. 
-                                            Si vous voulez terminer, envoyez /stop \n\nEt ainsi, le premier mot: {word.lower()}
-                                            """)
-            else:
-                update.message.reply_text(word)
-        except:
+    for word, translations in user_data[user_id]['words_for_time'].items():
+        if context.user_data['quiz_in_progress'] == False:
             context.user_data['quiz_in_progress'] = True
             update.message.reply_text(f"""
-                                        Quiz est lancé. Entrez les traductions des mots. 
-                                        Si vous voulez terminer, envoyez /stop \n\nEt ainsi, le premier mot: {word.lower()}
-                                        """)
+                Quiz est lancé. Entrez les traductions des mots. Si vous voulez terminer, envoyez /stop \n\nEt ainsi, le premier mot: {word.lower()}
+            """)
+        else:
+            update.message.reply_text(word)
 
         correct_translations = [translation.strip().lower() for translation in translations.split(',')]
         print(word, ', ',translations)
 
-        if word not in user_data['words']:
-            user_data['words'][word] = []
-        user_data['words'][word].append(correct_translations)
+        if word not in user_data[user_id]['words']:
+            user_data[user_id]['words'][word] = []
+        user_data[user_id]['words'][word].append(correct_translations)
 
         context.user_data['testing_word'] = word
-        del user_data['words_for_time'][word]
+        del user_data[user_id]['words_for_time'][word]
         break
-    return user_data
+    return
 
 def contin(update: Update, context: CallbackContext, user_data):
     reponse = ""
@@ -117,3 +150,4 @@ def contin(update: Update, context: CallbackContext, user_data):
     context.user_data['quiz_in_progress'] = False
 
     print(correct_count)
+    return

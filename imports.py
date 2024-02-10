@@ -9,3 +9,6 @@ from vocabulary import *
 
 # VARIABLES
 user_data = {}
+only_admins = False
+propriétaires = ['krsukhorukov']
+admins = []
