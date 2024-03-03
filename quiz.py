@@ -3,9 +3,12 @@ from imports import *
 def only_admin_check(func):
     def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
         username = update.message.from_user.username
-        if only_admins and username not in propriétaires:
+        user_id = update.message.from_user.id
+        user_id = str(user_id)
+
+        if only_admins and (username not in propriétaires) and (username not in admins) and (user_id not in propriétaires) and (user_id not in admins):
             print("Режим только для админов")
-            update.message.reply_text("ℹ️ <b>Проводятся технические работы.</b>\nБот временно не доступен", parse_mode='HTML')
+            update.message.reply_text("🛠 <b>Проводятся технические работы.</b>\nБот временно недоступен", parse_mode='HTML')
             return
         return func(update, context, *args, **kwargs)
 
@@ -31,6 +34,10 @@ def initialization(update: Update, context: CallbackContext):
 
     return
 
+def get_keyboard():
+    keyboard = [[key] for key in vocabulary.keys()]
+    return ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
+
 @only_admin_check
 def choose_voc(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
@@ -41,21 +48,22 @@ def choose_voc(update: Update, context: CallbackContext):
 
     if context.user_data['choose_in_progress'] == False:
         context.user_data['choose_in_progress'] = True
-        reponse = "Bonjour! Sélectionnez un dictionnaire parmi ceux énumérés ci-dessous et entrez son nom:\n"
-        for i in vocabulary.keys():
-            reponse += f"{i}\n"
-        update.message.reply_text(reponse)
+        reponse = "👋 Bonjour! Sélectionnez un dictionnaire parmi ceux énumérés ci-dessous et entrez son nom:\n\n"
+        for nom in vocabulary.keys():
+            reponse += f"• <i>{nom}</i>\n"
+        update.message.reply_text(reponse, parse_mode='HTML', reply_markup=get_keyboard())
 
     else:
         user_input = update.message.text
         user_input = user_input.strip().lower()
         context.user_data['choose_in_progress'] = False
 
-        if user_input in vocabulary:        
+        my_voc = {key.lower(): key for key, value in vocabulary.items()}
+        if user_input in my_voc:        
             random.seed()  # Инициализация генератора случайных чисел
-            shuffled_keys = list(vocabulary[f"{user_input}"].keys())
+            shuffled_keys = list(vocabulary[f"{my_voc[user_input]}"].keys())
             random.shuffle(shuffled_keys)
-            words_for_time = {key: vocabulary[f"{user_input}"][key] for key in shuffled_keys}
+            words_for_time = {key: vocabulary[f"{my_voc[user_input]}"][key] for key in shuffled_keys}
 
             if context.user_data['mode'] == "ru_to_fr":
                 words_for_time = {value: key for key, value in words_for_time.items()}
@@ -86,7 +94,7 @@ def start(update: Update, context: CallbackContext) -> None:
         if context.user_data['quiz_in_progress'] == False:
             context.user_data['quiz_in_progress'] = True
             update.message.reply_text(f"""
-                Quiz est lancé. /stop pour terminer.\n\nEt ainsi, le premier mot: <b>{word.lower()}</b>
+                🎉 Quiz est lancé. /stop pour terminer.\n\nEt ainsi, le premier mot: <b>{word.lower()}</b>
             """, parse_mode='HTML')
         else:
             update.message.reply_text(word.capitalize())
@@ -128,7 +136,7 @@ def contin(update: Update, context: CallbackContext):
                     my_translation += f"{i}, "
                 reponse += f"❌ {word} — {translation[1]} (correct: {my_translation.rstrip(', ')})\n"
     if ansver_count < 1:
-        update.message.reply_text("Результаты отсутствуют.")
+        update.message.reply_text("🤷‍♂️ <b>Aucun résultat.</b>\n/start pour commencer.", parse_mode='HTML')
     else:
         pourcentage = (correct_count * 100) / ansver_count
         rounded_pourcentage = round(pourcentage)

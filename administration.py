@@ -38,15 +38,21 @@ def del_admin(update: Update, context: CallbackContext):
         reponse = "Введите username админа, которого хотите удалить. Важно вводить только username. Вот список действующий админов:\n\n"
         for admin in admins:
             reponse += f"{admin}\n"
-        update.message.reply_text(reponse)
+
+        def keyboard():
+            keyboard = [[admin] for admin in admins]
+            return ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
+
+        update.message.reply_text(reponse, reply_markup=keyboard())
     else:
         user_input = update.message.text
         user_input = user_input.strip().replace("@", "")
+
         if user_input in admins:
             admins.remove(user_input)
             update.message.reply_text("✅ Админ удален!")
         else:
-            update.message.reply_text("❌ <b>Админ не найден!</b>\nПопробуйте еще раз /del_admin", parse_mode='HTML')
+            update.message.reply_text("❌ <b>Админ не найден!</b>\nПопробуйте еще раз /supprimer_admin", parse_mode='HTML')
 
         print(admins)
         context.user_data['del_admin'] = False

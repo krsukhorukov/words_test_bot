@@ -29,7 +29,7 @@ def handle_text_input(update: Update, context: CallbackContext) -> None:
         elif context.user_data['del_admin'] == True:
             del_admin(update, context)
         else:
-            update.message.reply_text("Entrée inattendue. Tapez /start pour commencer.")
+            update.message.reply_text("🫠 <b>Entrée inattendue.</b>\nTapez /start pour commencer.", parse_mode="HTML")
             
     except Exception as e:
         update.message.reply_text("⚠️ <b>Фатальная ошибка.</b>\nПопробуйте запустить еще раз /start", parse_mode='HTML')
@@ -45,9 +45,9 @@ def main() -> None:
 
     dp.add_handler(CommandHandler("start", choose_voc))
     dp.add_handler(CommandHandler("stop", contin))
-    dp.add_handler(CommandHandler("choose_mode", choose_mode))
-    dp.add_handler(CommandHandler("add_admin", add_admin))
-    dp.add_handler(CommandHandler("del_admin", del_admin))
+    dp.add_handler(CommandHandler("changer_mode", choose_mode))
+    dp.add_handler(CommandHandler("ajouter_admin", add_admin))
+    dp.add_handler(CommandHandler("supprimer_admin", del_admin))
     dp.add_handler(CommandHandler("change_admin_mode", change_admin_mode))
     dp.add_handler(CommandHandler("send_message_to_all_users", send_message_to_all_users))
 
