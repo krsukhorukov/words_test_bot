@@ -24,6 +24,7 @@ def initialization(update: Update, context: CallbackContext):
         context.user_data['mode'] = "fr_to_ru"
     context.user_data['initializated'] = True
     context.user_data['change_admin_mode'] = False
+    context.user_data['get_words'] = False
 
 
     if user_id not in user_data:
@@ -37,6 +38,30 @@ def initialization(update: Update, context: CallbackContext):
 def get_keyboard():
     keyboard = [[key] for key in vocabulary.keys()]
     return ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
+
+@only_admin_check
+def get_words(update: Update, context: CallbackContext):
+    reponse = ""
+    if context.user_data['get_words'] == False:
+        context.user_data['get_words'] = True
+        reponse = "🤓 Выберите словарь, и я выведу все слова из него\n\n"
+        for nom in vocabulary.keys():
+            reponse += f"• <i>{nom}</i>\n"
+        update.message.reply_text(reponse, parse_mode='HTML', reply_markup=get_keyboard())
+    else:
+        user_input = update.message.text
+        user_input = user_input.strip().lower()
+        context.user_data['get_words'] = False
+
+        my_voc = {key.lower(): key for key, value in vocabulary.items()}
+        if user_input in my_voc:
+            i = 0
+            for key, value in vocabulary[f"{my_voc[user_input]}"].items():
+                i += 1
+                reponse += f"{i}. {key} — {value}\n"
+            update.message.reply_text(f"{reponse}\n/start pour commencer le quiz !")
+        else:
+            update.message.reply_text("Dictionnaire non valide. Tapez /start encore une fois.")
 
 @only_admin_check
 def choose_voc(update: Update, context: CallbackContext):

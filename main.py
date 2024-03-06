@@ -1,5 +1,5 @@
 from imports import *
-from quiz import choose_voc, choose_mode, initialization, contin, start
+from quiz import choose_voc, choose_mode, initialization, contin, start, get_words
 from administration import  add_admin, del_admin, change_admin_mode, send_message_to_all_users
 
 TOKEN = token
@@ -28,6 +28,8 @@ def handle_text_input(update: Update, context: CallbackContext) -> None:
             add_admin(update, context)
         elif context.user_data['del_admin'] == True:
             del_admin(update, context)
+        elif context.user_data['get_words'] == True:
+            get_words(update, context)
         else:
             update.message.reply_text("🫠 <b>Entrée inattendue.</b>\nTapez /start pour commencer.", parse_mode="HTML")
             
@@ -46,6 +48,7 @@ def main() -> None:
     dp.add_handler(CommandHandler("start", choose_voc))
     dp.add_handler(CommandHandler("stop", contin))
     dp.add_handler(CommandHandler("changer_mode", choose_mode))
+    dp.add_handler(CommandHandler("get_words", get_words))
     dp.add_handler(CommandHandler("ajouter_admin", add_admin))
     dp.add_handler(CommandHandler("supprimer_admin", del_admin))
     dp.add_handler(CommandHandler("change_admin_mode", change_admin_mode))
