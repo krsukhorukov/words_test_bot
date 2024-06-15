@@ -1,0 +1,27 @@
+version: "4.31.1"
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - static:/code/static
+    depends_on:
+      - mysite_db
+
+  mysite_db:
+    image: postgres:13.2
+    container_name: mysite_db_c
+    ports:
+      - "5432:5432"
+    volumes:
+      - mysite_db-data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+
+volumes:
+  mysite_db-data:
+  static:

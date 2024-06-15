@@ -1,4 +1,69 @@
 vocabulary = {
+    "La communication non verbale":
+        {
+        'Élocution': 'речь',
+        'Crédibiliser': 'внушать доверие',
+        'La coiffure': 'прическа',
+        'Émetteur': 'передатчик',
+        'Le deuil': 'траур',
+        'Équation': 'уравнение',
+        'Un entretien d’embauche': 'собеседование при приеме на работу',
+        'Déterminer': 'определять, задавать, предопределять',
+        'Furieux': 'разъяренный',
+        'Offenser': 'обидеть',
+        'Irriter': 'раздражать',
+        'Se contenir': 'сдерживаться',
+        'Inconscient': 'бессознательный',
+        'Le retrait': 'снятие',
+        'La volonté': 'воля, желание',
+        'Dubitatif': 'сомнительный',
+        'Interrogation': 'допрос',
+        'Une tierce': 'третья сторона',
+        'La supériorité': 'превосходство',
+        'Défaire': 'расстегнуть, победить',
+        'La douleur': 'боль',
+        'Le chagrin': 'печаль, скорбь, горе',
+        'Obstination': 'упрямство',
+        'Approprié': 'соответствующий',
+        'Au-delà': 'загробная жизнь',
+        'Le timbre': 'тембр',
+        'À travers': 'через',
+        'Constituer': 'представлять собою, послужить',
+        'La posture': 'поза',
+        'Concerner': 'касаться',
+        'La bassin': 'водоем',
+        'Défense': 'оборона, защита',
+        'Hocher': 'махать',
+        'Interpeller': 'задержать',
+        'Le battement': 'удар',
+        'Ancrer': 'ставить на якорь',
+        'La tonicité': 'тонус',
+        'Un indice': 'индекс, указатель',
+        'Angoisser': 'тревожиться',
+        'Le dégoût': 'отвращение',
+        'Involontaire': 'непроизводный, непреднамеренный',
+        'Agacement': 'раздражение',
+        'Irritation': 'раздражение',
+        'Écarquiller': 'смотреть удивленно',
+        'Froncer': 'морщить',
+        'Corporel': 'телесный',
+        'Décontraction': 'непринужденность, беззаботность',
+        'Tissu': 'ткань, полотно, материя',
+        'Exacerbation': 'обострение',
+        'Distanciation': 'дистанцирование',
+        'Distinction': 'различие',
+        'Projeter': 'проектировать',
+        'Skateur': 'скейтбордист',
+        'Occidentale': 'западный',
+        'Heurter': 'ударять',
+        'Commettre': 'совершать',
+        'Atteinte': 'нарушение, посягательство',
+        'Aménagement': 'благоустройство',
+        'Affecter': 'влиять, воздействовать',
+        'Disposition': 'расположение',
+        'Répartition': 'распределение',
+        'Favoriser': 'способствовать, поощрять, помогать'
+        },
     "Des termes psychologiques" : {
         "Accomplissement": "Достижение",
         "Affection": "Привязанность",
@@ -20,9 +85,9 @@ vocabulary = {
         "Désir": "Желание",
         "Mêlé": "Смешанный",
         "Tendresse": "Нежность",
-        "Sombre": "Мрачный",
+        "Sombre": "Мрачный, темный",
         "Sensation": "Ощущение"
-    },
+        },
     "Verbes d'Expression et de Communication": {
         "Rétorquer": "Возразить",
         "Répliquer": "Продублировать",
@@ -50,7 +115,7 @@ vocabulary = {
         "Reconnaître": "Признать, распознать",
         "Ordonner": "Приказать",
         "Songer": "Думать"
-    },
+        },
     'fr4' :{
         "Déclencher": "Запускать, инициировать",
         "Horrible": "Ужасный",
@@ -72,7 +137,7 @@ vocabulary = {
         "Inclinaison": "Наклон",
         "Convenir": "Согласовать",
         "Adaptabilité": "Адаптивность"
-    },
+        },
     'fr3' :{
         "Avoir trait": "иметь отношение",
         "Le comportement": "поведение",
@@ -117,7 +182,7 @@ vocabulary = {
         "Maitre de la crème": "сглаживать",
         "Un déclic": "щелчок",
         "Éventuellement": "возможно"
-    },
+        },
     'fr2' : {
         # "Entraide": "Взаимопомощь",
             # "Un paria": "изгой",
@@ -160,7 +225,7 @@ vocabulary = {
         "Posséder": "Владеть",
         "Être friande de": "Любить",
         "Probité": "Порядочность"
-    },
+        },
     'fr1': {
         "Nœud": "узел",
         "Papillon": "бабочка",
@@ -234,7 +299,7 @@ vocabulary = {
         "Une valise": "чемодан",
         "J’ai dû": "мне пришлось",
         "Fringue": "шмотки"
-    },
+        },
     'en': {
         "Axis": "Ось",
         "modality": "Метод, форма",
@@ -258,7 +323,7 @@ vocabulary = {
         "Cognition": "Познание",
         "Prevalence": "Распространенность, превалирование, предрасположенность",
         "Conjecture": "Догадка, гипотеза"
-    },
+        },
     'en2': {
         "To abate": "Сокращать, уменьшать, ослаблять",
         "To abjure": "Отказаться, отрекаться, воздерживаться",
