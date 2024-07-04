@@ -52,8 +52,7 @@ def initialization(update: Update, context: CallbackContext):
 
 def get_keyboard():
     voc = VocabularyDatabase()
-    vocabulary, null = voc.db_get_words("vocabulary")
-    liste = vocabulary["name"]
+    liste = voc.db_get_words("vocabulary")
     keyboard = [[key] for key in liste]
     return ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
 
@@ -64,31 +63,32 @@ def get_words(update: Update, context: CallbackContext):
         initialization(update, context)
 
     message = language(update, context)
+    voc = VocabularyDatabase()
 
     reponse = ""
     if context.user_data['get_words'] == False:
         context.user_data['get_words'] = True
         reponse = message["Get dict"]
-        voc = VocabularyDatabase()
-        vocabulary, null = voc.db_get_words("vocabulary")
-        liste = vocabulary["name"]
+        liste = voc.db_get_words("vocabulary")
         for nom in liste:
             reponse += f"🔹 <i>{nom}</i>\n"
         update.message.reply_text(reponse, parse_mode='HTML', reply_markup=get_keyboard())
+
     else:
         user_input = update.message.text
-        user_input = user_input.strip().lower()
         context.user_data['get_words'] = False
 
-        my_voc = {key.lower(): key for key, value in vocabulary.items()}
-        if user_input in my_voc:
-            i = 0
-            for key, value in vocabulary[f"{my_voc[user_input]}"].items():
-                i += 1
-                reponse += f"{i}. {key} — {value}\n"
+        try:
+            word, translation = voc.db_get_words(user_input, 1)
+            logger.info(f"Загружен словарь {user_input}")
+            number = 0
+            for i in range(0, len(word)):
+                number += 1
+                reponse += f"{number}. {word[i]} — {translation[i]}\n"
             update.message.reply_text(f"{reponse} {message['To start']}")
-        else:
+        except Exception as e:
             update.message.reply_text(message["Dict error"])
+            logger.error(e)
 
 @only_admin_check
 def choose_voc(update: Update, context: CallbackContext):
@@ -100,19 +100,17 @@ def choose_voc(update: Update, context: CallbackContext):
 
     message = language(update, context)
     voc = VocabularyDatabase()
-
+    liste = voc.db_get_words("vocabulary")
 
     if context.user_data['choose_in_progress'] == False:
         context.user_data['choose_in_progress'] = True
         reponse = message["Select dict"]
-        liste = voc.db_get_words("vocabulary")
         for nom in liste:
             reponse += f"🔹 <i>{nom}</i>\n"
         update.message.reply_text(reponse, parse_mode='HTML', reply_markup=get_keyboard())
 
     else:
         user_input = update.message.text
-        # user_input = user_input.strip().lower()
         context.user_data['choose_in_progress'] = False
 
         word, translation = voc.db_get_words(user_input, is_dict=1)
@@ -207,7 +205,7 @@ def contin(update: Update, context: CallbackContext):
         rounded_pourcentage = round(pourcentage)
         reponse += f"{message['Statistique 1']} {correct_count} {message['Statistique 2']} {ansver_count}; {rounded_pourcentage}%"
 
-        group_id = -4001426065
+        group_id = CHAT_ID
         context.bot.send_message(group_id, f"<b>Données d'utilisateur</b>\n<i>Name:</i> {user_fullname}\n<i>Username:</i> @{username}\n<i>User ID:</i> {user_id}\n\n{reponse}", parse_mode='HTML')
         reponse += message["Restart"]
         update.message.reply_text(reponse, parse_mode='HTML')

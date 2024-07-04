@@ -1,4 +1,33 @@
 vocabulary = {
+    "fr5" :
+        {
+            'Dissolution': 'растворение',
+            'Escamotable': 'складной',
+            'Le pirate informatique': 'компьютерный пират',
+            'Hacker': 'хакер',
+            'Cheval de Troie': 'троянский конь',
+            'Épier': 'шпионить',
+            'Monétiser': 'монетизировать',
+            'Faire chanter qqch': 'шантажировать что-то',
+            'Faire chanter avec qqn': 'шантажировать кого-то',
+            'Le chantage': 'шантаж',
+            'La rançon': 'выкуп',
+            'Fishing': 'фишинг',
+            'Contabilité': 'бухгалтерия',
+            'Ratraper': 'догнать',
+            'Sectionner': 'разрезать',
+            'Kit main libre': 'гарнитура',
+            'Mettre en cache': 'кэшировать',
+            'Péter les plombs': 'взбеситься',
+            'Péter un câble': 'сорваться',
+            'Rouge de colère': 'красный от гнева',
+            'Entrer dans une colère noire': 'впасть в сильный гнев',
+            'Planter': 'зависать (о компьютере)',
+            'Câliner': 'обнимать, ласкать',
+            'Un câlin': 'объятие',
+            'Les chatouilles': 'щекотка',
+            'Précrastination': 'предварительное выполнение задачи'
+        },
     "La communication non verbale":
         {
         'Élocution': 'речь',
@@ -184,8 +213,8 @@ vocabulary = {
         "Éventuellement": "возможно"
         },
     'fr2' : {
-        # "Entraide": "Взаимопомощь",
-            # "Un paria": "изгой",
+        "Entraide": "Взаимопомощь",
+        "Un paria": "изгой",
         "Détendre": "Расслабиться",
         "Reprocher": "Упрекать",
         "Éprouver": "Испытывать",

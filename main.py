@@ -63,8 +63,8 @@ def handle_text_input(update: Update, context: CallbackContext) -> None:
             
     except Exception as e:
         update.message.reply_text(message["Fatal error"], parse_mode='HTML')
-        group_id = -4001426065
-        context.bot.send_message(group_id, f"⚠️ {user_fullname} столкнулся(ась) с ошибкой.\n\n<b>Données d'utilisateur</b>\n<i>Username:</i> @{username}\n<i>User ID:</i> {user_id}", parse_mode='HTML')
+        group_id = CHAT_ID
+        context.bot.send_message(group_id, f"⚠️ {user_fullname} столкнулся(ась) с ошибкой.\n\n<b>Données d'utilisateur</b>\n<i>Username:</i> @{username}\n<i>User ID:</i> {user_id}\nОшибка:\n{e}", parse_mode='HTML')
 
         initialization(update, context)
         logger.info(f"Вызов инициализации для обнуления данных пользователя.\nОшибка: {e}")

@@ -2,6 +2,5 @@ ipynb
 venv
 __pycache__
 .env
-db.py
 main (2).py
 user_data.db

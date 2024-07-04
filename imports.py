@@ -16,6 +16,6 @@ logger.add("file.log", rotation="1 MB", format="{time} {level} {message}", level
 
 # VARIABLES
 user_data = {}
-only_admins = True
+only_admins = False
 propriétaires = ['krsukhorukov']
 admins = []
